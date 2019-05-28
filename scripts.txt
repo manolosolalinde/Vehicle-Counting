@@ -1,0 +1,1 @@
+python Vehicle_Counting_colab.py ./videos/sample_traffic_scene.mp4 --droi "750,400|1150,400|1850,700|1850,1050|500,1050" --showdroi --detector "bgsub" --tracker "csrt" --di 5 --mctf 15 --hideimage
