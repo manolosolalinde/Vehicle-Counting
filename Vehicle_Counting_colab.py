@@ -35,6 +35,8 @@ parser.add_argument('--tracker', help='select a model/algorithm to use for vehic
 parser.add_argument('--record', action='store_true', help='record video and vehicle count logs')
 parser.add_argument('--clposition', help='position of counting line (options: top, bottom, \
                     left, right | default: bottom)')
+parser.add_argument('--hideimage', action='store_true', help='hide resulting image')
+
 args = parser.parse_args()
 
 
@@ -91,6 +93,11 @@ while True:
     if args.iscam or cap.get(cv2.CAP_PROP_POS_FRAMES) + 1 < cap.get(cv2.CAP_PROP_FRAME_COUNT):
         _, frame = cap.read()
         
+        nframes = cap.get(cv2.CAP_PROP_POS_FRAMES)
+        frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        if nframes % 10 == 0 or nframes == 1:
+            print("Processing {} of {} frames".format(nframes,frame_count))
+
         for _id, blob in list(blobs.items()):
             # update trackers
             success, box = blob.tracker.update(frame)
@@ -145,8 +152,9 @@ while True:
             output_video.write(frame)
 
         # visualize vehicle counting
-        resized_frame = cv2.resize(frame, (858, 480))
-        cv2.imshow('tracking', resized_frame)
+        if not args.hideimage:
+            resized_frame = cv2.resize(frame, (858, 480))
+            cv2.imshow('tracking', resized_frame)
 
         frame_counter += 1
 
@@ -166,7 +174,8 @@ while True:
 
 # end capture, close window, close log file and video objects if any
 cap.release()
-cv2.destroyAllWindows()
+if not args.hideimage:
+    cv2.destroyAllWindows()
 if args.record:
     log_file.close()
     output_video.release()
